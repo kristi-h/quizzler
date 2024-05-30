@@ -1,27 +1,51 @@
 import React from 'react'
 import { getQuestions } from '../api'
 import { useLoaderData } from 'react-router-dom'
+import { Question } from "../components/Question"
 
 export async function loader({request}){
-    console.log(request)
     return await getQuestions()
 }
 
 export default function Questions() {
     const questions = useLoaderData()
-    console.log(questions)
+    const [question, setQuestion] = React.useState({
+        question: "",
+        correct_answer: "",
+        incorrect_answers: [],
+        isAnswered: false,
+        isCorrect: false,
+        selected: ""
+    })
 
-    //const questionEle = questions.map(question => (
-     //   <div key={question}>
-       //     <h3>{question}</h3>
-        //</div>
-    //))
-
+    function randomize_mc(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex != 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+        }
+        
+        return array;
+        }
+    
+    function checkAnswers(){
+        if (question.selected === question.correct_answer) {
+            setQuestion(prev=>({
+                ...prev,
+                isCorrect: !prev
+            }))
+        }
+    }
+    
     return(
         <div>
             <h3>Questions</h3>
-            {questions}
+            < Question 
+                questions={props.questions}
+            />
         </div>
-        
-    )
+    
+)
 }
