@@ -1,7 +1,7 @@
 import React from 'react'
+import ReactDOM from 'react-dom';
 import { getQuestions } from '../api'
 import { useLoaderData } from 'react-router-dom'
-import { Question } from "../components/Question"
 
 export async function loader({request}){
     return await getQuestions()
@@ -13,10 +13,18 @@ export default function Questions() {
         question: "",
         correct_answer: "",
         incorrect_answers: [],
-        isAnswered: false,
+        answer: "",
         isCorrect: false,
-        selected: ""
+        answerOptions: []
     })
+
+    const scrambleAnswers = (correct_answer) => {
+        setQuestion(prev => {
+            ...prev,
+            answerOptions: incorrect_answers.push(correct_answer)
+        })
+        randomize_mc(answerOptions)
+    }
 
     function randomize_mc(array) {
         let currentIndex = array.length, randomIndex;
@@ -30,22 +38,52 @@ export default function Questions() {
         return array;
         }
     
-    function checkAnswers(){
-        if (question.selected === question.correct_answer) {
-            setQuestion(prev=>({
-                ...prev,
-                isCorrect: !prev
-            }))
+    function handleSelected(e){
+        const selected = e.target.value
+        setQuestion({
+            ...question, 
+            answer: selected
+        })
+    }
+
+    function checkAnswers(question){
+        if (question.answer === question.correct_answer) {
+            setQuestion({
+                ...question,
+                isCorrect: true
+            })
         }
+    }
+
+    function showResults(){
+        questions.map(question=>
+            checkAnswers(question)
+        )
     }
     
     return(
         <div>
             <h3>Questions</h3>
-            < Question 
-                questions={props.questions}
-            />
+           
+            {questions.results.map(i => (
+                
+                <div key={i}>
+                    <div>
+                        {question}
+                    </div>
+                    {
+                    scrambleAnswers(correct_answer).map((answer,index) => (
+                            <div key={index}>
+                                <button onClick = {handleSelection} value={answer}>{answer}</button>
+                            </div>
+                        )
+                        )
+                    }
+                </div>
+               )
+        )}
         </div>
-    
-)
+    )
 }
+       
+    
